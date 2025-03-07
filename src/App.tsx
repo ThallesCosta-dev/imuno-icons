@@ -5,16 +5,8 @@ import { Layer } from 'konva/lib/Layer';
 import SideBar from './components/SideBar/SideBar.component';
 import TopBar from './components/TopBar/TopBar.component';
 import RightControls from './components/RightControls/RightControls.component';
-
-const shapes = [
-  { id: "virus", url: "/files/virus.svg" },
-  { id: "anticorpo", url: "/files/icion_anticorpo.svg" },
-  { id: "cell-t", url: "/files/cell-t.svg" },
-  { id: "antigen", url: "/files/antigen.svg" },
-  { id: "dend-cell", url: "/files/dend-cell.svg" },
-  { id: "mch-2", url: "/files/mch-2.svg" },
-  { id: "t-receptor", url: "/files/t-receptor.svg" },
-];
+import iconData from './data/iconData';
+import svgCache from './services/SvgCache';
 
 function App() {
   const [stage, setStage] = useState<Stage>();
@@ -499,22 +491,96 @@ function App() {
   };
 
   const addSvg = (x: number, y: number, svg: string) => {
-    const image = new window.Image();
-    image.onload = () => {
-      const konvaImage = new Konva.Image({
+    // Lista de arquivos grandes que precisam de tratamento especial
+    const largeFiles = [
+      'White Pulp',
+      'Red Pulp',
+      'Intestinal Villus',
+      'Epidermal Ridge',
+      'Nephron',
+      'Thymus Lobule',
+      'Renal Corpuscle',
+      'Prostate Glandular Acinus',
+      'Liver Lobule',
+      'Crypt of Lieberkuhn'
+    ];
+    
+    // Verifica se o arquivo atual é um dos arquivos grandes
+    const isLargeFile = largeFiles.some(name => svg.includes(name));
+    
+    // Mostrar um indicador de carregamento
+    if (isLargeFile) {
+      // Criar um texto de carregamento temporário
+      const loadingText = new Konva.Text({
         x: x,
         y: y,
-        image: image,
-        width: 50,
-        height: 50,
-        draggable: true,
+        text: 'Carregando SVG...',
+        fontSize: 14,
+        fill: '#333',
+        padding: 10,
+        backgroundColor: '#f0f0f0',
+        cornerRadius: 5
       });
-      addTransformer(konvaImage);
-      layer.add(konvaImage);
+      layer.add(loadingText);
       layer.draw();
-      addHistory("add", konvaImage);
-    };
-    image.src = svg;
+      
+      // Carregar a imagem em um setTimeout para não bloquear a UI
+      setTimeout(() => {
+        const image = new window.Image();
+        image.onload = () => {
+          // Remover o texto de carregamento
+          loadingText.destroy();
+          
+          // Criar a imagem Konva
+          const konvaImage = new Konva.Image({
+            x: x,
+            y: y,
+            image: image,
+            width: 100, // Tamanho inicial maior para SVGs complexos
+            height: 100,
+            draggable: true,
+          });
+          
+          addTransformer(konvaImage);
+          layer.add(konvaImage);
+          layer.draw();
+          addHistory("add", konvaImage);
+        };
+        
+        image.onerror = () => {
+          // Em caso de erro, mostrar uma mensagem
+          loadingText.text('Erro ao carregar SVG');
+          loadingText.fill('red');
+          layer.draw();
+          
+          // Remover a mensagem após alguns segundos
+          setTimeout(() => {
+            loadingText.destroy();
+            layer.draw();
+          }, 3000);
+        };
+        
+        image.src = svg;
+      }, 100);
+    } else {
+      // Carregamento normal para arquivos pequenos
+      const image = new window.Image();
+      image.onload = () => {
+        const konvaImage = new Konva.Image({
+          x: x,
+          y: y,
+          image: image,
+          width: 50,
+          height: 50,
+          draggable: true,
+        });
+        addTransformer(konvaImage);
+        layer.add(konvaImage);
+        layer.draw();
+        addHistory("add", konvaImage);
+      };
+      image.src = svg;
+    }
   };
 
   const addTransformer = (node: Konva.Node) => {
@@ -571,10 +637,40 @@ function App() {
   const handleStageClick = () => {
     if (selectedShape) {
       const position = stage?.getPointerPosition();
-      const selectedSvg = shapes.find((shape) => shape.id === selectedShape);
-      if (selectedSvg && position) {
-        addSvg(position.x, position.y, selectedSvg.url);
-        setSelectedShape("");
+      if (position) {
+        // Procurar o item selecionado em todas as categorias
+        let selectedItem = null;
+        
+        for (const category in iconData) {
+          const categoryItems = iconData[category];
+          
+          // Verificar se a categoria tem subcategorias
+          if (categoryItems && typeof categoryItems === 'object' && !Array.isArray(categoryItems)) {
+            // Procurar em subcategorias
+            for (const subcategory in categoryItems) {
+              const subcategoryItems = categoryItems[subcategory] as IconItem[];
+              const found = subcategoryItems.find(item => item.id === selectedShape);
+              if (found) {
+                selectedItem = found;
+                break;
+              }
+            }
+          } else if (Array.isArray(categoryItems)) {
+            // Procurar em categorias sem subcategorias
+            const found = categoryItems.find(item => item.id === selectedShape);
+            if (found) {
+              selectedItem = found;
+              break;
+            }
+          }
+          
+          if (selectedItem) break;
+        }
+        
+        if (selectedItem) {
+          addSvg(position.x, position.y, selectedItem.url);
+          setSelectedShape("");
+        }
       }
     }
   };
@@ -794,9 +890,32 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    // Pré-carregar SVGs comuns para melhorar a experiência do usuário
+    const preloadCommonSvgs = async () => {
+      // Lista de SVGs comuns que serão pré-carregados
+      const commonSvgs = [
+        "/files/icion_anticorpo.svg",
+        "/files/cell-t.svg",
+        "/files/antigen.svg",
+        "/files/virus/VirusParticleIcon0001.svg",
+        "/files/anatomy/HumanHeart0001.svg",
+        "/files/anatomy/HumanLungs0001.svg"
+      ];
+      
+      try {
+        await svgCache.preloadImages(commonSvgs);
+      } catch (err) {
+        console.warn("Erro ao pré-carregar SVGs:", err);
+      }
+    };
+    
+    preloadCommonSvgs();
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-50">
-      <SideBar onItemClick={handleShapeClick} />
+      <SideBar onItemClick={handleShapeClick} items={iconData} />
       <div className="flex-1 flex flex-col">
         <TopBar
           onSaveClick={handleSaveClick}
