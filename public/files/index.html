@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/konva@9.3.1/konva.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Konva Resizable and Rotatable Shapes with SVGs</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+      }
+
+      #container {
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+      }
+
+      #stage-container {
+        flex: 1;
+      }
+
+      #sidebar {
+        width: 100px;
+        background-color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+      }
+
+      #shapes {
+        margin-bottom: 20px;
+      }
+
+      .shape {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background-size: cover;
+      }
+
+      #delete-btn {
+        padding: 10px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="sidebar">
+        <div id="shapes">
+          <div class="shape" id="svg1" style="background-image: url('svg1.svg');"></div>
+          <div class="shape" id="svg2" style="background-image: url('svg2.svg');"></div>
+          <div class="shape" id="svg3" style="background-image: url('svg3.svg');"></div>
+        </div>
+        <button id="delete-btn">Delete</button>
+      </div>
+      <div id="stage-container">
+        <div id="stage"></div>
+      </div>
+    </div>
+
+    <script>
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+
+      var stage = new Konva.Stage({
+        container: 'stage',
+        width: width - 100, // Adjust width to fit the stage container
+        height: height,
+      });
+
+      var layer = new Konva.Layer();
+      stage.add(layer);
+
+      var selectedShape = null;
+
+      function addSvg(x, y, svg) {
+        var image = new Image();
+        image.onload = function () {
+          var konvaImage = new Konva.Image({
+            x: x,
+            y: y,
+            image: image,
+            width: 50,
+            height: 50,
+            draggable: true,
+          });
+
+          addTransformer(konvaImage);
+          layer.add(konvaImage);
+          layer.draw();
+        };
+        image.src = svg;
+      }
+
+      function addTransformer(node) {
+        var transformer = new Konva.Transformer();
+        layer.add(transformer);
+
+        node.on('click', () => {
+          transformer.attachTo(node);
+          layer.batchDraw();
+          // Listen for delete key press
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete') {
+              node.destroy()
+              transformer.destroy()
+            }
+          });
+
+           document.getElementById('delete-btn').addEventListener('click', function () {
+              node.destroy()
+              transformer.destroy()
+           });
+        });
+
+        stage.on('click', (e) => {
+          // Deselect when clicking on empty space
+          if (e.target === stage) {
+            transformer.detach();
+            layer.draw();
+          }
+        });
+
+        // Deselect on Esc key press
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            transformer.detach();
+            layer.draw();
+          }
+        });
+      }
+
+      function clearSelection() {
+        selectedShape = null;
+      }
+
+      document.getElementById('svg1').addEventListener('click', function () {
+        selectedShape = 'svg1';
+      });
+
+      document.getElementById('svg2').addEventListener('click', function () {
+        selectedShape = 'svg2';
+      });
+
+      document.getElementById('svg3').addEventListener('click', function () {
+        selectedShape = 'svg3';
+      });
+
+      stage.on('click', function (e) {
+        if (selectedShape) {
+          var position = stage.getPointerPosition();
+          switch (selectedShape) {
+            case 'svg1':
+              addSvg(position.x, position.y, 'svg1.svg');
+              break;
+            case 'svg2':
+              addSvg(position.x, position.y, 'svg2.svg');
+              break;
+            case 'svg3':
+              addSvg(position.x, position.y, 'svg3.svg');
+              break;
+          }
+          clearSelection();
+        }
+      });
+
+    </script>
+  </body>
+</html>
