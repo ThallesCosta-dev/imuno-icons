@@ -265,8 +265,10 @@ function App() {
     // Iniciar o recorte
     setIsCropping(true);
     
-    // Desativar transformers durante o recorte
-    stage.find('Transformer').forEach(tr => tr.hide());
+    // Remover todos os transformers existentes antes de iniciar o recorte
+    stage.find('Transformer').forEach(tr => {
+      tr.destroy();
+    });
     
     // Obter a posição e tamanho do nó selecionado
     const nodeRect = selectedNode.getClientRect();
@@ -295,6 +297,7 @@ function App() {
       anchorFill: '#ffffff',
       anchorSize: 8,
       borderStrokeWidth: 1,
+      name: 'crop-transformer',
       boundBoxFunc: (oldBox, newBox) => {
         // Limitar o retângulo de recorte à área do nó selecionado
         if (
@@ -331,7 +334,10 @@ function App() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       
-      if (!ctx || !imageObj) return;
+      if (!ctx || !imageObj) {
+        cleanupCrop();
+        return;
+      }
       
       // Verificar se o objeto de imagem é um HTMLImageElement
       if (!(imageObj instanceof HTMLImageElement)) {
@@ -339,57 +345,224 @@ function App() {
         return;
       }
       
-      // Calcular a proporção entre o tamanho da imagem original e o tamanho exibido
-      const scaleX = imageObj.naturalWidth / image.width();
-      const scaleY = imageObj.naturalHeight / image.height();
-      
-      // Calcular as coordenadas de recorte na imagem original
-      const cropX = (cropBox.x - image.x()) * scaleX;
-      const cropY = (cropBox.y - image.y()) * scaleY;
-      const cropWidth = cropBox.width * scaleX;
-      const cropHeight = cropBox.height * scaleY;
-      
-      // Definir o tamanho do canvas
-      canvas.width = cropWidth;
-      canvas.height = cropHeight;
-      
-      // Desenhar a parte recortada da imagem no canvas
-      ctx.drawImage(
-        imageObj,
-        cropX, cropY, cropWidth, cropHeight,
-        0, 0, cropWidth, cropHeight
-      );
-      
-      // Criar uma nova imagem a partir do canvas
-      const newImage = new window.Image();
-      newImage.onload = () => {
-        // Atualizar a imagem existente
-        image.image(newImage);
-        image.width(cropBox.width);
-        image.height(cropBox.height);
-        image.position({
-          x: cropBox.x,
-          y: cropBox.y
-        });
+      try {
+        // Calcular a proporção entre o tamanho da imagem original e o tamanho exibido
+        const scaleX = imageObj.naturalWidth / (image.width() * image.scaleX());
+        const scaleY = imageObj.naturalHeight / (image.height() * image.scaleY());
         
-        // Limpar o retângulo de recorte
+        // Calcular as coordenadas de recorte na imagem original
+        // Ajustar para considerar a posição e escala da imagem
+        const imgPos = image.getAbsolutePosition();
+        const imgRotation = image.rotation();
+        
+        // Se a imagem estiver rotacionada, precisamos de uma abordagem diferente
+        if (imgRotation !== 0) {
+          // Para imagens rotacionadas, é mais complexo
+          // Vamos simplificar e apenas recortar a área visível
+          
+          // Definir o tamanho do canvas para o tamanho do recorte
+          canvas.width = cropBox.width;
+          canvas.height = cropBox.height;
+          
+          // Criar um novo stage temporário para renderizar apenas a parte recortada
+          const tempStage = new Konva.Stage({
+            container: document.createElement('div'),
+            width: cropBox.width,
+            height: cropBox.height,
+          });
+          
+          const tempLayer = new Konva.Layer();
+          tempStage.add(tempLayer);
+          
+          // Clonar a imagem e ajustar sua posição relativa ao recorte
+          const clonedImage = image.clone();
+          clonedImage.position({
+            x: image.x() - cropBox.x,
+            y: image.y() - cropBox.y,
+          });
+          
+          tempLayer.add(clonedImage);
+          tempLayer.draw();
+          
+          // Converter o stage temporário para uma URL de dados
+          const dataURL = tempStage.toDataURL({
+            x: 0,
+            y: 0,
+            width: cropBox.width,
+            height: cropBox.height,
+            pixelRatio: 2
+          });
+          
+          // Primeiro, limpar completamente o recorte e todas as seleções
+          cleanupCrop();
+          
+          // Criar uma nova imagem a partir da URL de dados
+          const newImage = new window.Image();
+          newImage.onload = () => {
+            // Atualizar a imagem existente
+            image.image(newImage);
+            image.width(cropBox.width / image.scaleX());
+            image.height(cropBox.height / image.scaleY());
+            image.position({
+              x: cropBox.x,
+              y: cropBox.y
+            });
+            
+            // Atualizar o histórico
+            addHistory("crop", image);
+            
+            // Recriar o transformer para a imagem recortada
+            createNewTransformer(image);
+          };
+          newImage.src = dataURL;
+        } else {
+          // Para imagens não rotacionadas, podemos usar o método original
+          // Calcular as coordenadas de recorte na imagem original
+          const cropX = (cropBox.x - imgPos.x) * scaleX;
+          const cropY = (cropBox.y - imgPos.y) * scaleY;
+          const cropWidth = cropBox.width * scaleX;
+          const cropHeight = cropBox.height * scaleY;
+          
+          // Definir o tamanho do canvas
+          canvas.width = cropWidth;
+          canvas.height = cropHeight;
+          
+          // Desenhar a parte recortada da imagem no canvas
+          ctx.drawImage(
+            imageObj,
+            cropX, cropY, cropWidth, cropHeight,
+            0, 0, cropWidth, cropHeight
+          );
+          
+          // Primeiro, limpar completamente o recorte e todas as seleções
+          cleanupCrop();
+          
+          // Criar uma nova imagem a partir do canvas
+          const newImage = new window.Image();
+          newImage.onload = () => {
+            // Atualizar a imagem existente
+            image.image(newImage);
+            image.width(cropBox.width / image.scaleX());
+            image.height(cropBox.height / image.scaleY());
+            image.position({
+              x: cropBox.x,
+              y: cropBox.y
+            });
+            
+            // Atualizar o histórico
+            addHistory("crop", image);
+            
+            // Recriar o transformer para a imagem recortada
+            createNewTransformer(image);
+          };
+          newImage.src = canvas.toDataURL();
+        }
+      } catch (error) {
+        console.error("Erro ao recortar imagem:", error);
+        cleanupCrop();
+      }
+    } else if (selectedNode.nodeType === 'Group') {
+      try {
+        const group = selectedNode as Konva.Group;
+        
+        // Obter a posição absoluta do grupo
+        const groupPos = group.getAbsolutePosition();
+        
+        // Calcular a nova posição do grupo após o recorte
+        const newX = cropBox.x;
+        const newY = cropBox.y;
+        
+        // Limpar o recorte e todas as seleções
         cleanupCrop();
         
+        // Mover o grupo para a nova posição
+        group.position({
+          x: newX,
+          y: newY
+        });
+        
+        // Encontrar o retângulo dentro do grupo (para caixas de texto)
+        const rect = group.findOne('Rect') as Konva.Rect;
+        if (rect) {
+          // Redimensionar o retângulo
+          rect.width(cropBox.width / group.scaleX());
+          rect.height(cropBox.height / group.scaleY());
+        }
+        
+        // Encontrar o texto dentro do grupo
+        const text = group.findOne('Text') as Konva.Text;
+        if (text) {
+          // Redimensionar o texto
+          text.width(cropBox.width / group.scaleX());
+          text.height(cropBox.height / group.scaleY());
+        }
+        
         // Atualizar o histórico
-        addHistory("crop", image);
-      };
-      newImage.src = canvas.toDataURL();
+        addHistory("crop", group);
+        
+        // Atualizar a camada
+        layer.draw();
+        
+        // Recriar o transformer para o grupo recortado
+        createNewTransformer(group);
+      } catch (error) {
+        console.error("Erro ao recortar grupo:", error);
+        cleanupCrop();
+      }
     } else {
-      // Para outros tipos de nós, podemos implementar outras estratégias de recorte
-      // Por enquanto, apenas limpamos o recorte
+      // Para outros tipos de nós, implementar conforme necessário
       cleanupCrop();
     }
   };
 
+  // Função para criar um novo transformer após o recorte
+  const createNewTransformer = (node: Konva.Node) => {
+    // Garantir que o nó ainda existe na camada
+    if (!node || !node.getStage()) return;
+    
+    // Criar um novo transformer
+    const newTransformer = new Konva.Transformer({
+      nodes: [node],
+      rotateEnabled: true,
+      enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+      borderStroke: '#0066cc',
+      anchorStroke: '#0066cc',
+      anchorFill: '#ffffff',
+      anchorSize: 8,
+      borderStrokeWidth: 1,
+    });
+    
+    // Adicionar o transformer à camada
+    layer.add(newTransformer);
+    
+    // Atualizar o nó selecionado
+    setSelectedNode(node);
+    
+    // Atualizar a camada
+    layer.draw();
+  };
+
   const cleanupCrop = () => {
-    // Remover o retângulo de recorte e o transformador
-    stage?.find('.crop-rect').forEach(node => node.destroy());
-    stage?.find('Transformer').forEach(tr => tr.show());
+    if (!stage) return;
+    
+    // Remover todos os retângulos de recorte
+    stage.find('.crop-rect').forEach(node => {
+      node.destroy();
+    });
+    
+    // Remover todos os transformers de recorte
+    stage.find('.crop-transformer').forEach(tr => {
+      tr.destroy();
+    });
+    
+    // Remover todos os transformers regulares para evitar duplicatas
+    stage.find('Transformer').forEach(tr => {
+      if (tr.name() !== 'crop-transformer') {
+        tr.destroy();
+      }
+    });
+    
+    // Atualizar a camada
     layer.draw();
     
     // Resetar o estado
@@ -807,23 +980,30 @@ function App() {
   const addRectWithText = () => {
     if (stage) {
       let x: number, y: number;
+      let textGroup: Konva.Group | null = null;
+      
       const remove = () => {
         stage.off("mousedown");
+        stage.off("mousemove");
         stage.off("mouseup");
       };
 
       stage.on("mousedown", (e) => {
+        // Ignorar se o clique não foi no palco
+        if (e.target !== stage) return;
+        
         x = e.evt.offsetX;
         y = e.evt.offsetY;
-      });
-
-      stage.on("mouseup", () => {
-        const group = new Konva.Group({
+        
+        // Criar o grupo imediatamente para feedback visual
+        textGroup = new Konva.Group({
           x: x,
           y: y,
           draggable: true,
+          opacity: 0.8, // Inicialmente semi-transparente para indicar que está sendo criado
         });
 
+        // Criar o retângulo de fundo
         const rect = new Konva.Rect({
           width: 200,
           height: 100,
@@ -831,69 +1011,214 @@ function App() {
           stroke: '#4299E1',
           strokeWidth: 1,
           cornerRadius: 4,
+          shadowColor: 'rgba(0,0,0,0.1)',
+          shadowBlur: 5,
+          shadowOffset: { x: 0, y: 2 },
+          shadowOpacity: 0.5,
         });
 
+        // Criar o texto com placeholder
         const text = new Konva.Text({
-          text: textContent || 'Double click to edit',
+          text: textContent || 'Clique duplo para editar',
           fontSize: 14,
           fontFamily: 'Inter, sans-serif',
           fill: '#2D3748',
           width: 200,
           padding: 10,
           align: 'center',
+          verticalAlign: 'middle',
+          height: 100,
         });
 
+        // Adicionar elementos ao grupo
+        textGroup.add(rect);
+        textGroup.add(text);
+        
+        // Adicionar o grupo à camada
+        layer.add(textGroup);
+        layer.batchDraw();
+      });
+
+      // Permitir redimensionar durante a criação
+      stage.on("mousemove", (e) => {
+        if (!textGroup) return;
+        
+        // Calcular as novas dimensões com base na posição do mouse
+        const width = Math.max(100, e.evt.offsetX - x);
+        const height = Math.max(50, e.evt.offsetY - y);
+        
+        // Atualizar o retângulo
+        const rect = textGroup.findOne('Rect') as Konva.Rect;
+        rect.width(width);
+        rect.height(height);
+        
+        // Atualizar o texto
+        const text = textGroup.findOne('Text') as Konva.Text;
+        text.width(width);
+        text.height(height);
+        
+        layer.batchDraw();
+      });
+
+      stage.on("mouseup", () => {
+        if (!textGroup) return;
+        
+        // Finalizar a criação
+        textGroup.opacity(1);
+        
+        // Configurar o evento de edição de texto
+        const text = textGroup.findOne('Text') as Konva.Text;
+        const rect = textGroup.findOne('Rect') as Konva.Rect;
+        
         text.on('dblclick', () => {
-          const textNode = text;
-          const textPosition = textNode.getAbsolutePosition();
-          
-          const input = document.createElement('textarea');
-          document.body.appendChild(input);
-          
-          input.value = textNode.text();
-          input.style.position = 'absolute';
-          input.style.top = `${textPosition.y}px`;
-          input.style.left = `${textPosition.x}px`;
-          input.style.width = `${textNode.width()}px`;
-          input.style.height = `${textNode.height()}px`;
-          input.style.fontSize = `${textNode.fontSize()}px`;
-          input.style.border = 'none';
-          input.style.padding = '0px';
-          input.style.margin = '0px';
-          input.style.overflow = 'hidden';
-          input.style.background = 'none';
-          input.style.outline = 'none';
-          input.style.resize = 'none';
-          input.style.lineHeight = textNode.lineHeight().toString();
-          input.style.fontFamily = textNode.fontFamily();
-          input.style.transformOrigin = 'left top';
-          input.style.textAlign = textNode.align();
-          input.style.color = textNode.fill();
-          
-          input.focus();
-          
-          input.addEventListener('blur', () => {
-            textNode.text(input.value);
-            document.body.removeChild(input);
-            layer.draw();
-          });
+          // Criar um editor de texto mais amigável
+          createTextEditor(text, rect, textGroup!);
         });
-
-        group.add(rect);
-        group.add(text);
-        addTransformer(group);
-        layer.add(group);
-        layer.draw();
-        addHistory("add", group);
+        
+        // Adicionar transformador
+        addTransformer(textGroup);
+        
+        // Adicionar ao histórico
+        addHistory("add", textGroup);
+        
+        // Limpar os event listeners
         remove();
       });
     }
   };
 
+  // Função para criar um editor de texto mais amigável
+  const createTextEditor = (textNode: Konva.Text, rectNode: Konva.Rect, group: Konva.Group) => {
+    // Obter a posição absoluta do grupo (não apenas do texto)
+    const groupPos = group.getAbsolutePosition();
+    const stageContainer = stage?.container();
+    
+    if (!stageContainer) return;
+    
+    // Calcular a escala atual do palco
+    const stageScale = stage!.scaleX();
+    
+    // Criar o elemento de textarea
+    const textarea = document.createElement('textarea');
+    document.body.appendChild(textarea);
+    
+    // Calcular a posição correta considerando a rotação e escala do grupo
+    const rotation = group.rotation();
+    
+    // Configurar o estilo do textarea para corresponder ao retângulo (não ao texto)
+    const areaPosition = {
+      x: groupPos.x + stage!.container().offsetLeft,
+      y: groupPos.y + stage!.container().offsetTop
+    };
+    
+    // Obter as dimensões reais do retângulo
+    const width = rectNode.width() * group.scaleX() * stageScale;
+    const height = rectNode.height() * group.scaleY() * stageScale;
+    
+    // Aplicar estilos ao textarea
+    textarea.value = textNode.text();
+    textarea.style.position = 'absolute';
+    textarea.style.top = `${areaPosition.y}px`;
+    textarea.style.left = `${areaPosition.x}px`;
+    textarea.style.width = `${width}px`;
+    textarea.style.height = `${height}px`;
+    textarea.style.fontSize = `${textNode.fontSize() * group.scaleY() * stageScale}px`;
+    textarea.style.border = '1px solid #4299E1';
+    textarea.style.padding = `${textNode.padding() * stageScale}px`;
+    textarea.style.margin = '0px';
+    textarea.style.overflow = 'auto';
+    textarea.style.background = '#EBF8FF';
+    textarea.style.outline = 'none';
+    textarea.style.resize = 'none';
+    textarea.style.lineHeight = textNode.lineHeight() ? textNode.lineHeight().toString() : '1.2';
+    textarea.style.fontFamily = textNode.fontFamily();
+    textarea.style.transformOrigin = 'left top';
+    textarea.style.textAlign = textNode.align();
+    textarea.style.color = textNode.fill();
+    textarea.style.borderRadius = '4px';
+    textarea.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+    textarea.style.zIndex = '1000';
+    
+    // Aplicar rotação se necessário
+    if (rotation !== 0) {
+      textarea.style.transform = `rotate(${rotation}deg)`;
+      textarea.style.transformOrigin = 'left top';
+    }
+    
+    // Adicionar classe para estilização adicional
+    textarea.className = 'konva-text-editor';
+    
+    // Focar o textarea
+    textarea.focus();
+    
+    // Selecionar todo o texto
+    textarea.select();
+    
+    // Função para aplicar o texto e remover o editor
+    const applyTextAndRemove = () => {
+      // Verificar se o textarea ainda existe no DOM
+      if (!document.body.contains(textarea)) return;
+      
+      // Aplicar o texto ao nó
+      textNode.text(textarea.value || 'Clique duplo para editar');
+      
+      // Remover o textarea
+      document.body.removeChild(textarea);
+      
+      // Atualizar a camada
+      layer.draw();
+      
+      // Adicionar ao histórico
+      addHistory("edit", group);
+      
+      // Remover os event listeners
+      window.removeEventListener('click', handleOutsideClick);
+      window.removeEventListener('keydown', handleEscKey);
+      textarea.removeEventListener('keydown', handleEnterKey);
+    };
+    
+    // Função para lidar com cliques fora do textarea
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (e.target !== textarea) {
+        applyTextAndRemove();
+      }
+    };
+    
+    // Função para lidar com a tecla Enter
+    const handleEnterKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        applyTextAndRemove();
+      }
+    };
+    
+    // Função para lidar com a tecla Escape
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        applyTextAndRemove();
+      }
+    };
+    
+    // Adicionar event listeners
+    // Usar setTimeout para evitar que o clique atual acione o evento
+    setTimeout(() => {
+      window.addEventListener('click', handleOutsideClick);
+    }, 0);
+    
+    window.addEventListener('keydown', handleEscKey);
+    textarea.addEventListener('keydown', handleEnterKey);
+    
+    // Adicionar evento de blur
+    textarea.addEventListener('blur', () => {
+      // Pequeno atraso para permitir que outros handlers sejam executados primeiro
+      setTimeout(applyTextAndRemove, 100);
+    });
+  };
+
   useEffect(() => {
-    // Pré-carregar SVGs comuns para melhorar a experiência do usuário
+    // Pré-carregar algumas SVGs
     const preloadCommonSvgs = async () => {
-      // Lista de SVGs comuns que serão pré-carregados
+      // Lista de SVGs ue serão pré-carregados
       const commonSvgs = [
         "/files/icion_anticorpo.svg",
         "/files/cell-t.svg",
