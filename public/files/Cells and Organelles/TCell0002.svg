@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 500 500">
+  <metadata><title>TCell</title><description>Round circular T cell illustration</description><license>Public Domain</license><creator>Ryan Kissinger</creator><creationDate>2024-09-26T12:22:04-04:00</creationDate><credit>Courtesy of NIAID</credit><illustrationSoftwares>[{'name': 'Adobe Illustrator', 'version': '28.7'}]</illustrationSoftwares><caption>TCell</caption><imageColor>Multicolor</imageColor><isDiscoverThumbnail>True</isDiscoverThumbnail></metadata><ns0:defs>
+    <ns0:style>
+      .cls-1 {
+        fill: #f7cfc6;
+        stroke: #70453e;
+        stroke-miterlimit: 10;
+        stroke-width: 9px;
+      }
+
+      .cls-2 {
+        fill: #ebae87;
+      }
+    </ns0:style>
+  </ns0:defs>
+  
+  <ns0:g>
+    <ns0:g id="Layer_1">
+      <ns0:g>
+        <ns0:circle class="cls-1" cx="260.01" cy="250.02" r="153.84" />
+        <ns0:circle class="cls-2" cx="256.08" cy="251.04" r="114.9" />
+      </ns0:g>
+    </ns0:g>
+  </ns0:g>
+  </ns0:svg>

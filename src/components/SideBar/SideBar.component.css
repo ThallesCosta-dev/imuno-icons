@@ -1,0 +1,25 @@
+/* Custom scrollbar styles */
+.scrollbar-custom {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #3182ce #e2e8f0; /* Firefox (thumb, track) */
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background-color: #e2e8f0; /* Light track color */
+  border-radius: 10px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: #3182ce; /* Thumb color */
+  border-radius: 10px;
+  border: 2px solid #e2e8f0; /* Border around the thumb */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background-color: #63b3ed; /* Hover effect on thumb */
+}

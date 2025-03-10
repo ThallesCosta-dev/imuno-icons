@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 500 500">
+  <metadata><title>Generic Immune Cell</title><description>Generic Immune Cell</description><license>Public Domain</license><creator>Ryan Kissinger</creator><creationDate>2024-09-18T13:27:52-06:00</creationDate><credit>Courtesy of NIAID</credit><illustrationSoftwares>[{'name': 'Adobe Illustrator', 'version': '28.7'}]</illustrationSoftwares><caption>Generic Immune Cell - Orange</caption><imageColor>Orange</imageColor></metadata><ns0:defs>
+    <ns0:style>
+      .cls-1 {
+        fill: #f79520;
+      }
+
+      .cls-2 {
+        fill: #d79580;
+      }
+
+      .cls-3 {
+        isolation: isolate;
+      }
+
+      .cls-4 {
+        mix-blend-mode: color;
+      }
+
+      .cls-5 {
+        fill: #f9d8c9;
+        stroke: #5b433b;
+        stroke-miterlimit: 10;
+        stroke-width: 2.98px;
+      }
+    </ns0:style>
+  </ns0:defs>
+  
+  <ns0:g class="cls-3">
+    <ns0:g id="Layer_1">
+      <ns0:g id="generic_immune_cell">
+        <ns0:g id="cell_membrane">
+          <ns0:circle class="cls-5" cx="250" cy="250" r="171.47" />
+        </ns0:g>
+        <ns0:path class="cls-2" d="M305.7,396.81c-51.04,8.42-99.41-26.25-107.83-77.29-8.42-51.04,26.25-99.41,77.28-107.83,51.04-8.42,99.41,26.25,107.83,77.28,8.42,51.04-26.25,99.41-77.29,107.84Z" />
+      </ns0:g>
+    </ns0:g>
+    <ns0:g id="Layer_1_copy" class="cls-4">
+      <ns0:path class="cls-1" d="M391.68,150.8c-54.7-78.12-162.76-97.18-240.88-42.48-37.85,26.5-63.11,66.15-71.13,111.64s2.15,91.4,28.65,129.24c33.61,48,87.35,73.7,141.93,73.7,34.25,0,68.83-10.13,98.95-31.22,78.12-54.7,97.18-162.76,42.48-240.88Z" />
+    </ns0:g>
+  </ns0:g>
+</ns0:svg>
