@@ -69,5 +69,32 @@
   "search": {
     "placeholder": "Buscar iconos...",
     "noResults": "No se encontraron elementos."
+  },
+  "ai": {
+    "askAI": "Preguntar a la IA",
+    "assistantTitle": "Asistente de IA",
+    "welcomeMessage": "¡Hola! Soy tu asistente para crear diagramas médicos. ¿Cómo puedo ayudarte hoy?",
+    "inputPlaceholder": "Escribe tu pregunta o solicitud...",
+    "suggestedIcons": "Iconos sugeridos",
+    "iconSelected": "Icono seleccionado exitosamente",
+    "textAdded": "Texto añadido al diagrama",
+    "quickActions": {
+      "findIcons": "Buscar iconos",
+      "diagramIdeas": "Ideas de diagrama",
+      "improveDesign": "Mejorar diseño",
+      "findIconsPrompt": "¿Qué tipo de icono estás buscando?",
+      "diagramIdeasPrompt": "¿Qué tipo de diagrama médico te gustaría crear?",
+      "improveDesignPrompt": "¿Cómo puedo mejorar mi diagrama actual?"
+    },
+    "responses": {
+      "howToCreate": "Para crear un diagrama, puedes arrastrar iconos desde la barra lateral al lienzo, agregar flechas para conectar elementos, y usar texto para etiquetas. ¡Puedo sugerir iconos específicos si me dices qué tipo de diagrama estás creando!",
+      "cellSuggestion": "Encontré algunos iconos de células que podrían ser útiles para tu diagrama:",
+      "virusSuggestion": "Aquí tienes algunos virus que puedes usar en tu diagrama:",
+      "antibodySuggestion": "Encontré iconos relacionados con anticuerpos e inmunología:",
+      "anatomySuggestion": "Aquí tienes estructuras anatómicas que podrían ser útiles:",
+      "iconSearch": "Encontré {{count}} iconos relacionados con tu búsqueda:",
+      "defaultHelp": "Puedo ayudarte a encontrar iconos específicos, crear diagramas médicos, o dar sugerencias sobre cómo mejorar tu diseño. ¿Qué tipo de ayuda necesitas?",
+      "iconAdded": "¡{{name}} ha sido añadido a tu diagrama!"
+    }
   }
 }
