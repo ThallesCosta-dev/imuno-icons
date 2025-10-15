@@ -240,8 +240,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed bottom-4 right-4 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 transition-all duration-300 ${
-      isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'
+    <div className={`fixed bg-white rounded-lg shadow-2xl border border-gray-200 z-50 transition-all duration-300 ${
+      isMinimized
+        ? 'bottom-4 right-4 w-80 h-16'
+        : 'bottom-4 right-4 w-96 h-[500px] max-h-[calc(100vh-100px)] max-w-[calc(100vw-32px)]'
     }`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
