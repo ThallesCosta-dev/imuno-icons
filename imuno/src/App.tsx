@@ -723,7 +723,7 @@ function App() {
       // Obter a posição e tamanho do retângulo de recorte
       const cropBox = cropRect.getClientRect();
 
-      // Verificar se o nó selecionado é uma imagem
+      // Verificar se o n�� selecionado é uma imagem
       if (selectedNode.className === "Image") {
         const image = selectedNode as Konva.Image;
         const imageObj = image.image();
@@ -1937,6 +1937,16 @@ function App() {
           index={index}
         />
       ))}
+
+      {/* AI Assistant */}
+      <AIAssistant
+        isOpen={isAIOpen}
+        onClose={handleCloseAI}
+        onIconSuggestion={handleAIIconSuggestion}
+        onAddText={handleAIAddText}
+        isMinimized={isAIMinimized}
+        onToggleMinimize={handleToggleAIMinimize}
+      />
     </div>
   );
 }
