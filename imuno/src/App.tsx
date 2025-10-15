@@ -5,6 +5,7 @@ import { Layer } from "konva/lib/Layer";
 import SideBar from "./components/SideBar/SideBar.component";
 import TopBar from "./components/TopBar/TopBar.component";
 import RightControls from "./components/RightControls/RightControls.component";
+import AIAssistant from "./components/AIAssistant/AIAssistant.component";
 import iconData from "./data/iconData";
 import svgCache from "./services/SvgCache";
 import { BathIcon } from "lucide-react";
