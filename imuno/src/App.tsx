@@ -55,6 +55,31 @@ function App() {
     setCursorState("selecting");
   };
 
+  const handleToggleAI = () => {
+    setIsAIOpen(!isAIOpen);
+    setIsAIMinimized(false);
+  };
+
+  const handleCloseAI = () => {
+    setIsAIOpen(false);
+    setIsAIMinimized(false);
+  };
+
+  const handleToggleAIMinimize = () => {
+    setIsAIMinimized(!isAIMinimized);
+  };
+
+  const handleAIIconSuggestion = (iconId: string) => {
+    setSelectedShape(iconId);
+    showNotification(t('ai.iconSelected'), 'success');
+  };
+
+  const handleAIAddText = (text: string) => {
+    setTextContent(text);
+    addRectWithText();
+    showNotification(t('ai.textAdded'), 'success');
+  };
+
   useEffect(() => {
     const konvaStage = new Konva.Stage({
       container: "stage",
