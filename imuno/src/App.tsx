@@ -1899,6 +1899,8 @@ function App() {
           isLocked={isLocked}
           isFavorite={isFavorite}
           cursorState={cursorState}
+          onToggleAI={handleToggleAI}
+          isAIOpen={isAIOpen}
         />
         <div
           className={`flex-1 bg-gray-100 ${previewMode ? "preview-mode" : ""}`}
