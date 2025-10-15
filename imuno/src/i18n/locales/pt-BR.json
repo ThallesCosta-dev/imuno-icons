@@ -25,7 +25,8 @@
     "preview": "Visualizar",
     "zoom": "Zoom",
     "canvasColor": "Cor do canvas",
-    "language": "Idioma"
+    "language": "Idioma",
+    "askAI": "Perguntar à IA"
   },
   "categories": {
     "immunology": "Imunologia",
