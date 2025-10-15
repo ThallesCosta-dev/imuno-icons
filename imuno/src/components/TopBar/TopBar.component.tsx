@@ -32,6 +32,8 @@ interface TopBarProps {
   isLocked: boolean;
   isFavorite: boolean;
   cursorState: string;
+  onToggleAI: () => void;
+  isAIOpen: boolean;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
