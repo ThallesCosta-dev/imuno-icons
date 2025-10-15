@@ -327,15 +327,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
 
           {/* Quick Actions */}
           <div className="px-4 py-2 border-t border-gray-100">
-            <div className="flex space-x-2 overflow-x-auto">
+            <div className="flex space-x-2 overflow-x-auto scrollbar-hide">
               {quickActions.map((action, index) => (
                 <button
                   key={index}
                   onClick={action.action}
-                  className="flex items-center space-x-1 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs whitespace-nowrap transition-colors"
+                  className="flex items-center space-x-1 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs whitespace-nowrap transition-colors flex-shrink-0"
                 >
-                  <action.icon className="h-3 w-3" />
-                  <span>{action.label}</span>
+                  <action.icon className="h-3 w-3 flex-shrink-0" />
+                  <span className="hidden sm:inline">{action.label}</span>
                 </button>
               ))}
             </div>
