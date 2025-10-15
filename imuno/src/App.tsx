@@ -48,6 +48,8 @@ function App() {
     message: string;
     type: 'success' | 'error' | 'info';
   }[]>([]);
+  const [isAIOpen, setIsAIOpen] = useState(false);
+  const [isAIMinimized, setIsAIMinimized] = useState(false);
 
   const selectingCursorState = () => {
     setCursorState("selecting");
