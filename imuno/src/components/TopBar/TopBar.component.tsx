@@ -60,6 +60,8 @@ const TopBar: React.FC<TopBarProps> = ({
   isLocked,
   isFavorite,
   cursorState,
+  onToggleAI,
+  isAIOpen,
 }) => {
   const { t } = useTranslation();
   return (
