@@ -69,5 +69,32 @@
   "search": {
     "placeholder": "Search icons...",
     "noResults": "No items found."
+  },
+  "ai": {
+    "askAI": "Ask AI",
+    "assistantTitle": "AI Assistant",
+    "welcomeMessage": "Hello! I'm your assistant for creating medical diagrams. How can I help you today?",
+    "inputPlaceholder": "Type your question or request...",
+    "suggestedIcons": "Suggested icons",
+    "iconSelected": "Icon selected successfully",
+    "textAdded": "Text added to diagram",
+    "quickActions": {
+      "findIcons": "Find icons",
+      "diagramIdeas": "Diagram ideas",
+      "improveDesign": "Improve design",
+      "findIconsPrompt": "What type of icon are you looking for?",
+      "diagramIdeasPrompt": "What type of medical diagram would you like to create?",
+      "improveDesignPrompt": "How can I improve my current diagram?"
+    },
+    "responses": {
+      "howToCreate": "To create a diagram, you can drag icons from the sidebar to the canvas, add arrows to connect elements, and use text for labels. I can suggest specific icons if you tell me what type of diagram you're creating!",
+      "cellSuggestion": "I found some cell icons that might be useful for your diagram:",
+      "virusSuggestion": "Here are some viruses you can use in your diagram:",
+      "antibodySuggestion": "I found icons related to antibodies and immunology:",
+      "anatomySuggestion": "Here are anatomical structures that might be useful:",
+      "iconSearch": "I found {{count}} icons related to your search:",
+      "defaultHelp": "I can help you find specific icons, create medical diagrams, or give suggestions on how to improve your design. What kind of help do you need?",
+      "iconAdded": "{{name}} has been added to your diagram!"
+    }
   }
 }
