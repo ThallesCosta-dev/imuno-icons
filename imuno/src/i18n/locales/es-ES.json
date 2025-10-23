@@ -26,7 +26,8 @@
     "zoom": "Zoom",
     "canvasColor": "Color del lienzo",
     "language": "Idioma",
-    "askAI": "Preguntar a la IA"
+    "askAI": "Preguntar a la IA",
+    "uploadImage": "Cargar imagen"
   },
   "categories": {
     "immunology": "Inmunología",
@@ -60,7 +61,9 @@
     "cannotCutLocked": "No se pueden cortar elementos bloqueados",
     "loadingSvg": "Cargando SVG...",
     "errorLoadingSvg": "Error al cargar SVG",
-    "doubleClickToEdit": "Doble clic para editar"
+    "doubleClickToEdit": "Doble clic para editar",
+    "imageUploaded": "Imagen cargada exitosamente",
+    "errorLoadingImage": "Error al cargar imagen"
   },
   "languages": {
     "pt-BR": "Português (Brasil)",
