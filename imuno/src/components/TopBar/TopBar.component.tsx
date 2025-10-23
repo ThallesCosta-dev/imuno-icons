@@ -34,6 +34,7 @@ interface TopBarProps {
   cursorState: string;
   onToggleAI: () => void;
   isAIOpen: boolean;
+  onImageUpload: (file: File) => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
