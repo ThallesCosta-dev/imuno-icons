@@ -97,6 +97,21 @@ const TopBar: React.FC<TopBarProps> = ({
         </button>
 
         <button
+          className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          {t('common.uploadImage')}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+
+        <button
           className={`inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium ${
             isAIOpen ? 'bg-blue-100 text-blue-700 border-blue-300' : 'text-gray-700 bg-white'
           } hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
