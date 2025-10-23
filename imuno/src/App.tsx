@@ -1743,6 +1743,62 @@ function App() {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
   };
 
+  // Função para adicionar imagem ao canvas
+  const handleImageUpload = (file: File) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const url = event.target?.result as string;
+
+      if (!stage || !layer) {
+        showNotification(t('notifications.errorLoadingImage'), 'error');
+        return;
+      }
+
+      const img = new window.Image();
+
+      img.onload = () => {
+        // Adicionar imagem ao canvas
+        const konvaImage = new Konva.Image({
+          image: img,
+          x: 100,
+          y: 100,
+          width: Math.min(200, img.naturalWidth),
+          height: Math.min(200, img.naturalHeight),
+          draggable: true,
+          name: 'selectable',
+        });
+
+        layer.add(konvaImage);
+
+        // Selecionar a imagem recém-adicionada
+        if (transformer) {
+          transformer.nodes([konvaImage]);
+          transformer.moveToTop();
+        }
+
+        // Adicionar ao histórico
+        addHistory('add', konvaImage);
+
+        layer.batchDraw();
+
+        showNotification(t('notifications.imageUploaded'), 'success');
+      };
+
+      img.onerror = () => {
+        showNotification(t('notifications.errorLoadingImage'), 'error');
+      };
+
+      img.src = url;
+    };
+
+    reader.onerror = () => {
+      showNotification(t('notifications.errorLoadingImage'), 'error');
+    };
+
+    reader.readAsDataURL(file);
+  };
+
   // Adicione estas refs após a definição das funções
   const handleCopyRef = useRef(handleCopy);
   const handleCutRef = useRef(handleCut);
