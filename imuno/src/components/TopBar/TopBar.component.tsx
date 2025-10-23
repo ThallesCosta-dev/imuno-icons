@@ -3,7 +3,7 @@ import {
   ArrowRight, Type, Save, Undo2, Redo2,
   Scissors, Copy, Clipboard, FlipHorizontal, FlipVertical,
   Lock, Star, Layers, Crop,
-  ChevronUp, ChevronDown, PenTool, Bot
+  ChevronUp, ChevronDown, PenTool, Bot, Upload
 } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher.component';
