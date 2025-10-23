@@ -63,8 +63,20 @@ const TopBar: React.FC<TopBarProps> = ({
   cursorState,
   onToggleAI,
   isAIOpen,
+  onImageUpload,
 }) => {
   const { t } = useTranslation();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      onImageUpload(files[0]);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
   return (
     <div className="h-16 bg-white border-b border-gray-200 px-4 flex items-center justify-between shadow-sm">
       <div className="flex space-x-2">
