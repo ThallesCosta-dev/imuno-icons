@@ -1957,6 +1957,7 @@ function App() {
           cursorState={cursorState}
           onToggleAI={handleToggleAI}
           isAIOpen={isAIOpen}
+          onImageUpload={handleImageUpload}
         />
         <div
           className={`flex-1 bg-gray-100 ${previewMode ? "preview-mode" : ""}`}
