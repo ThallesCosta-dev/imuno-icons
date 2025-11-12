@@ -11,7 +11,7 @@ app.use(express.json());
 app.post('/api/chat', async (req, res) => {
   try {
     console.log('Received request:', JSON.stringify(req.body, null, 2));
-    const { messages, model = 'moonshotai/kimi-k2:free', apiKey } = req.body;
+    const { messages, model = 'deepseek/deepseek-chat-v3.1:free', apiKey } = req.body;
 
     if (!apiKey) {
       console.error('API key not provided');
