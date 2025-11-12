@@ -137,7 +137,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({
     const apiKey =
       (import.meta.env as any).VITE_OPENROUTER_API_KEY ||
       (import.meta.env as any).VITE_GROQ_API_KEY ||
-      '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';
+      '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';
 
     openRouterServiceRef.current = new OpenRouterService(apiKey);
   }, []);

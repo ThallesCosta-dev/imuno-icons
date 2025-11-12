@@ -61,7 +61,7 @@ Always be accurate, educational, and context-aware. Focus on helping users creat
       }
 
       const requestBody = {
-        model: 'moonshotai/kimi-k2:free',
+        model: 'deepseek/deepseek-chat-v3.1:free',
         messages: [
           {
             role: 'system',
@@ -105,7 +105,10 @@ Always be accurate, educational, and context-aware. Focus on helping users creat
         throw new Error('Invalid response format from API');
       }
 
-      const assistantMessage = data.choices[0].message.content;
+      let assistantMessage = data.choices[0].message.content;
+      
+      // Remove special tokens that might appear in the response
+      assistantMessage = assistantMessage.replace(/<｜begin▁of▁sentence｜>/g, '').trim();
 
       // Add assistant response to history
       this.conversationHistory.push({
